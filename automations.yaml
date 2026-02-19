@@ -649,23 +649,29 @@
   alias: 'Master Bedroom: Humidifier Overnight Cycle'
   description: Cycle humidifier on/off during overnight windows when Andrew is home.
   triggers:
-  - at: 02:30:00
-    id: on1
+  - at: '23:00:00'
+    id: on_11pm
     trigger: time
-  - at: 04:30:00
-    id: on2
+  - at: 00:00:00
+    id: off_12am
     trigger: time
-  - at: 06:00:00
-    id: on3
+  - at: 01:00:00
+    id: on_1am
+    trigger: time
+  - at: 02:00:00
+    id: off_2am
     trigger: time
   - at: 03:00:00
-    id: off1
+    id: on_3am
+    trigger: time
+  - at: 04:00:00
+    id: off_4am
     trigger: time
   - at: 05:00:00
-    id: off2
+    id: on_5am
     trigger: time
-  - at: 06:15:00
-    id: off3
+  - at: 06:00:00
+    id: off_6am
     trigger: time
   conditions:
   - condition: or
@@ -679,21 +685,27 @@
   actions:
   - choose:
     - conditions:
-      - condition: template
-        value_template: '{{ trigger.id in [''on1'',''on2'',''on3''] }}'
+      - condition: trigger
+        id:
+        - on_11pm
+        - on_1am
+        - on_3am
+        - on_5am
       sequence:
       - target:
           device_id: 788c5fd6f09f75f04e76cb3a805de6aa
         action: switch.turn_on
-        data: {}
     - conditions:
-      - condition: template
-        value_template: '{{ trigger.id in [''off1'',''off2'',''off3''] }}'
+      - condition: trigger
+        id:
+        - off_12am
+        - off_2am
+        - off_4am
+        - off_6am
       sequence:
       - target:
           device_id: 788c5fd6f09f75f04e76cb3a805de6aa
         action: switch.turn_off
-        data: {}
   mode: single
 - alias: 'Guest Mode: Sync Thermostat Automations'
   mode: single
@@ -1525,10 +1537,12 @@
   mode: single
 - id: '1771270799101'
   alias: 'GitHub: Backup Nightly'
-  description: ''
+  description: Push Home Assistant config to GitHub daily at 5:00 AM.
   triggers:
   - at: 05:00:00
     trigger: time
+  conditions: []
   actions:
-  - action: shell_command.git_push
+  - data: {}
+    action: shell_command.git_push
   mode: single
