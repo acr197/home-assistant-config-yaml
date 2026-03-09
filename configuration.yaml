@@ -156,6 +156,9 @@ mqtt:
       json_attributes_topic: zigbee2mqtt/bridge/response/networkmap
       json_attributes_template: "{{ value_json.data.value | tojson }}"
 
+shell_command:
+  git_push: "sh /config/git_push.sh"
+  
 # pihole commands
 rest_command:
   pihole_auth:

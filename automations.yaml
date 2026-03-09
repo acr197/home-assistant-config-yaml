@@ -245,7 +245,7 @@
   triggers:
   - trigger: state
     entity_id:
-    - light.hue_white_lamp_guest_bath_2
+    - light.hue_white_lamp_top_br_dresser
     to:
     - 'off'
     from:
@@ -652,26 +652,26 @@
   - at: '23:00:00'
     id: on_11pm
     trigger: time
-  - at: 00:00:00
-    id: off_12am
+  - at: '23:30:00'
+    id: off_1130pm
     trigger: time
   - at: 01:00:00
     id: on_1am
     trigger: time
-  - at: 02:00:00
-    id: off_2am
+  - at: 01:30:00
+    id: off_130am
     trigger: time
   - at: 03:00:00
     id: on_3am
     trigger: time
-  - at: 04:00:00
-    id: off_4am
+  - at: 03:30:00
+    id: off_330am
     trigger: time
   - at: 05:00:00
     id: on_5am
     trigger: time
-  - at: 06:00:00
-    id: off_6am
+  - at: 05:30:00
+    id: off_530am
     trigger: time
   conditions:
   - condition: or
@@ -698,10 +698,10 @@
     - conditions:
       - condition: trigger
         id:
-        - off_12am
-        - off_2am
-        - off_4am
-        - off_6am
+        - off_1130pm
+        - off_130am
+        - off_330am
+        - off_530am
       sequence:
       - target:
           device_id: 788c5fd6f09f75f04e76cb3a805de6aa
@@ -898,27 +898,6 @@
       device_id: e3414be67e3e5199c322dcab3887e2a4
       entity_id: 19864e4daa9c6e9d9e462f40e093e53c
       domain: switch
-  mode: single
-- id: '1761782105588'
-  alias: 'Nursery: Turn Off Heater When Central Heat Turns On'
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id: climate.thermostat
-    attribute: hvac_action
-    to: heating
-  conditions: []
-  actions:
-  - choose:
-    - conditions:
-      - condition: state
-        entity_id: switch.nursery_heater
-        state: 'on'
-      sequence:
-      - action: switch.turn_off
-        data: {}
-        target:
-          entity_id: switch.nursery_heater
   mode: single
 - id: '1761791366230'
   alias: 'Nursery: Temperature Alerts (66/76 for 5m)'
@@ -1469,80 +1448,13 @@
             ttl: 0
             priority: high
   mode: single
-- id: '1770816990641'
-  alias: 'Nursery: Humidifer on/off 45%/60% with Hatch'
-  description: 'Checks nursery humidity every 10 minutes (and when Hatch turns on).
-    If humidity is 65% or higher, turns the heater plug OFF. If humidity is 45% or
-    lower, turns the heater plug ON. If Hatch is idle, keeps the heater OFF.
-
-    '
-  triggers:
-  - device_id: 54376091c5980b4a3ea7b981389db0df
-    domain: media_player
-    entity_id: b08609d1c4a650ea08bb26c14de1564b
-    type: playing
-    trigger: device
-  - id: periodic
-    minutes: /10
-    trigger: time_pattern
-  conditions: []
-  actions:
-  - choose:
-    - conditions:
-      - condition: device
-        device_id: 54376091c5980b4a3ea7b981389db0df
-        domain: media_player
-        entity_id: b08609d1c4a650ea08bb26c14de1564b
-        type: is_idle
-      sequence:
-      - type: turn_off
-        device_id: 788c5fd6f09f75f04e76cb3a805de6aa
-        entity_id: 03fe58014a9ed31a3e38e2dad9cc99f5
-        domain: switch
-    - conditions:
-      - condition: device
-        device_id: 54376091c5980b4a3ea7b981389db0df
-        domain: media_player
-        entity_id: b08609d1c4a650ea08bb26c14de1564b
-        type: is_playing
-      - condition: numeric_state
-        entity_id: sensor.govee_thermometer_nursery_h5075_humidity
-        above: 60
-      sequence:
-      - target:
-          entity_id:
-          - switch.humidifier_smart_plug
-        action: switch.turn_off
-        data: {}
-    - conditions:
-      - condition: device
-        device_id: 54376091c5980b4a3ea7b981389db0df
-        domain: media_player
-        entity_id: b08609d1c4a650ea08bb26c14de1564b
-        type: is_playing
-      - condition: numeric_state
-        entity_id: sensor.govee_thermometer_nursery_h5075_humidity
-        below: 45
-      sequence:
-      - target:
-          entity_id:
-          - switch.humidifier_smart_plug
-        action: switch.turn_on
-        data: {}
-    default:
-    - type: turn_off
-      device_id: 788c5fd6f09f75f04e76cb3a805de6aa
-      entity_id: 03fe58014a9ed31a3e38e2dad9cc99f5
-      domain: switch
-  mode: single
 - id: '1771270799101'
   alias: 'GitHub: Backup Nightly'
-  description: Push Home Assistant config to GitHub daily at 5:00 AM.
+  description: Push Home Assistant config changes to GitHub daily at 5:00 AM.
   triggers:
   - at: 05:00:00
     trigger: time
   conditions: []
   actions:
-  - data: {}
-    action: shell_command.git_push
+  - action: shell_command.git_push
   mode: single
