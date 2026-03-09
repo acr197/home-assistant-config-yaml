@@ -36,8 +36,6 @@ fi
 git config user.name "Home Assistant"
 git config user.email "homeassistant@local"
 
-git pull --rebase --autostash origin "$BRANCH"
-
 git add -A
 
 if git diff --cached --quiet; then
@@ -46,6 +44,10 @@ if git diff --cached --quiet; then
 fi
 
 git commit -m "Auto backup: $(date '+%Y-%m-%dT%H:%M:%S%z')"
-git push origin "$BRANCH"
+
+if ! git push origin "$BRANCH"; then
+  echo "ERROR: push rejected because GitHub changed. Sync manually once, then rerun."
+  exit 1
+fi
 
 echo "Backup push completed"
