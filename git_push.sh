@@ -1,30 +1,42 @@
 #!/bin/sh
 set -eu
 
-REPO_DIR="/config"
+exec >> /config/git_push.log 2>&1
 
-if ! command -v git >/dev/null 2>&1; then
-  echo "ERROR: git is not installed in the Home Assistant container" >&2
-  exit 127
-fi
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+REPO_DIR="/config"
+BRANCH="main"
+
+echo "==== $(date) ===="
 
 cd "$REPO_DIR"
 
-if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  echo "ERROR: /config is not a git repository" >&2
+if ! command -v git >/dev/null 2>&1; then
+  echo "ERROR: git is not available"
   exit 1
 fi
+
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "ERROR: /config is not a git repository"
+  exit 1
+fi
+
+if [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ] || [ -f .git/MERGE_HEAD ]; then
+  echo "ERROR: git repo is busy with a rebase or merge"
+  exit 1
+fi
+
+git checkout "$BRANCH"
 
 if ! git remote get-url origin >/dev/null 2>&1; then
-  echo "ERROR: Missing git remote 'origin'" >&2
+  echo "ERROR: Missing git remote 'origin'"
   exit 1
 fi
 
-BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-if [ -z "$BRANCH" ] || [ "$BRANCH" = "HEAD" ]; then
-  echo "ERROR: Unable to determine git branch" >&2
-  exit 1
-fi
+git config user.name "Home Assistant"
+git config user.email "homeassistant@local"
+
+git pull --rebase --autostash origin "$BRANCH"
 
 git add -A
 
@@ -34,5 +46,6 @@ if git diff --cached --quiet; then
 fi
 
 git commit -m "Auto backup: $(date '+%Y-%m-%dT%H:%M:%S%z')"
-git pull --rebase origin "$BRANCH"
 git push origin "$BRANCH"
+
+echo "Backup push completed"

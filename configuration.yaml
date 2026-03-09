@@ -197,4 +197,4 @@ scene: !include scenes.yaml
 
 # For Git
 shell_command:
-  git_push: /config/git_push.sh
+  git_push: "sh /config/git_push.sh"
